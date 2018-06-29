@@ -1,3 +1,4 @@
+import numpy as np
 from random import shuffle
 
 iris_labels = {1: 'Iris-setosa',
@@ -55,4 +56,22 @@ iris_data = [[1, 5.1, 3.5, 1.4, 0.2], [1, 4.9, 3.0, 1.4, 0.2], [1, 4.7, 3.2, 1.3
              [3, 6.7, 3.3, 5.7, 2.5], [3, 6.7, 3.0, 5.2, 2.3], [3, 6.3, 2.5, 5.0, 1.9],
              [3, 6.5, 3.0, 5.2, 2.0], [3, 6.2, 3.4, 5.4, 2.3], [3, 5.9, 3.0, 5.1, 1.8]]
 
-shuffle(iris_data)
+
+def setup_data(learning_percent=0.8):
+    shuffle(iris_data)
+    all_data = np.array(iris_data)
+
+    learning_size = int(len(all_data) * learning_percent)
+
+    poss_labels = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+    labels = np.array([poss_labels[int(i[0]) - 1] for i in all_data])
+    features = np.array([i[1:] for i in all_data])
+    features = (features - features.min(axis=0)) / features.max(axis=0)
+
+    learn_set = np.array(features[0: learning_size])
+    learn_expected = np.array(labels[0: learning_size])
+
+    test_data = np.array(features[learning_size:])
+    test_expected = np.array(labels[learning_size:])
+
+    return learn_set, learn_expected, test_data, test_expected

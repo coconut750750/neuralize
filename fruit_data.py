@@ -1,10 +1,10 @@
+import numpy as np
 from random import shuffle
 
 fruit_labels = {1: 'apple',
                 2: 'mandarin',
                 3: 'orange',
                 4: 'lemon'}
-fruit_features = ['label', 'mass', 'width', 'height', 'color_score']
 
 fruit_data = [[1, 192, 8.4, 7.3, 0.55], [1, 180, 8.0, 6.8, 0.59], [1, 176, 7.4, 7.2, 0.60],
               [1, 178, 7.1, 7.8, 0.92], [1, 172, 7.4, 7.0, 0.89], [1, 166, 6.9, 7.3, 0.93],
@@ -27,4 +27,21 @@ fruit_data = [[1, 192, 8.4, 7.3, 0.55], [1, 180, 8.0, 6.8, 0.59], [1, 176, 7.4, 
               [4, 116, 6.1, 8.5, 0.71], [4, 116, 6.3, 7.7, 0.72], [4, 116, 5.9, 8.1, 0.73],
               [4, 152, 6.5, 8.5, 0.72], [4, 118, 6.1, 8.1, 0.70]]
 
-shuffle(fruit_data)
+def setup_data(learning_percent=0.8):
+    shuffle(fruit_data)
+    all_data = np.array(fruit_data)
+
+    learning_size = int(len(all_data) * learning_percent)
+
+    poss_labels = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+    labels = np.array([poss_labels[int(i[0]) - 1] for i in all_data])
+    features = np.array([i[1:] for i in all_data])
+    features = (features - features.min(axis=0)) / features.max(axis=0)
+
+    learn_set = np.array(features[0: learning_size])
+    learn_expected = np.array(labels[0: learning_size])
+
+    test_data = np.array(features[learning_size:])
+    test_expected = np.array(labels[learning_size:])
+
+    return learn_set, learn_expected, test_data, test_expected
