@@ -1,5 +1,11 @@
 import numpy as np
 
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+def sigmoidPrime(x):
+    return x * (1 - x)
+
 class NeuralNet(object):
     def __init__(self, num_layers, layer_sizes,
                  teaching_iterations=1000,
@@ -21,29 +27,23 @@ class NeuralNet(object):
         self.biases = [np.random.random((1, self.layer_sizes[i + 1])) * 2 - 1\
                          for i in range(self.num_layers - 1)]
 
-    def sigmoid(self, s):
-        return 1 / (1 + np.exp(-s))
-
-    def sigmoidPrime(self, s):
-        return s * (1 - s)
-
     def _forward(self, input):
         outputs = [input]
         
         for i in range(self.num_layers - 1):
             z = np.dot(outputs[i], self.synapses[i]) + self.biases[i]
-            outputs.append(self.sigmoid(z))
+            outputs.append(sigmoid(z))
         
         return outputs
 
     def backward(self, expected_output, layer_activations):
         last_layer_error = expected_output - layer_activations[self.num_layers - 1]
-        prev_delta = last_layer_error * self.sigmoidPrime(layer_activations[self.num_layers - 1])
+        prev_delta = last_layer_error * sigmoidPrime(layer_activations[self.num_layers - 1])
         self.synapses[self.num_layers - 2] += layer_activations[self.num_layers - 2].T.dot(prev_delta) * self.learning_rate
 
         for i in range(self.num_layers - 2, 0, -1):
             layer_error = prev_delta.dot(self.synapses[i].T)
-            prev_delta = layer_error * self.sigmoidPrime(layer_activations[i])
+            prev_delta = layer_error * sigmoidPrime(layer_activations[i])
             self.synapses[i - 1] += layer_activations[i - 1].T.dot(prev_delta) * self.learning_rate
 
     def train(self, input, expected_output):
