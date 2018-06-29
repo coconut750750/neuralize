@@ -39,11 +39,8 @@ class NeuralNet(object):
         
         return outputs
 
-    def forward(self, input):
-        return self._forward(input)[-1]
-
-    def backward(self, expected, layer_activations):
-        last_layer_error = expected - layer_activations[self.num_layers - 1]
+    def backward(self, expected_output, layer_activations):
+        last_layer_error = expected_output - layer_activations[self.num_layers - 1]
         prev_delta = last_layer_error * self.sigmoidPrime(layer_activations[self.num_layers - 1])
         self.synapses[self.num_layers - 2] += layer_activations[self.num_layers - 2].T.dot(prev_delta) * self.learning_rate
 
@@ -52,10 +49,13 @@ class NeuralNet(object):
             prev_delta = layer_error * self.sigmoidPrime(layer_activations[i])
             self.synapses[i - 1] += layer_activations[i - 1].T.dot(prev_delta) * self.learning_rate
 
-    def train(self, input, expected):
+    def train(self, input, expected_output):
         for i in range(self.training_iterations):
             layer_activations = self._forward(input)
-            self.backward(expected, layer_activations)
+            self.backward(expected_output, layer_activations)
+
+    def predict(self, input):
+        return self._forward(input)[-1]
 
 if __name__ == '__main__':
     np.set_printoptions(suppress=True)
@@ -79,15 +79,15 @@ if __name__ == '__main__':
 
     neural_net = NeuralNet(3, [4, 3, 3], training_iterations=50000, learning_rate=0.05)
 
-    predicted = neural_net.forward(training_set)
+    predicted = neural_net.predict(training_set)
     initial_performance = np.mean(expected - predicted)
 
     neural_net.train(training_set, expected)
 
-    predicted = neural_net.forward(training_set)
+    predicted = neural_net.predict(training_set)
     trained_performance = np.mean(expected - predicted)
 
-    test_predicted = neural_net.forward(test_data)
+    test_predicted = neural_net.predict(test_data)
     print("Loss: " + str(np.mean(test_expected - test_predicted)))
     for i, predict_data in enumerate(test_predicted):
         # print(predict_data, test_expected[i])
