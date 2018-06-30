@@ -46,11 +46,12 @@ class NeuralNet(object):
             prev_delta = layer_error * sigmoidPrime(layer_activations[i])
             self.synapses[i - 1] += layer_activations[i - 1].T.dot(prev_delta) * self.learning_rate
 
-    def train(self, input, expected_output):
+    def train(self, input, expected_output, display_progress=False):
         for i in range(self.teaching_iterations):
             layer_activations = self._forward(input)
             self.backward(expected_output, layer_activations)
-            print(i)
+            if display_progress:
+                print("Learning Iteration: {}".format(i))
 
     def predict(self, input):
         return self._forward(input)[-1]

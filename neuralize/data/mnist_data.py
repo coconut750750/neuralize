@@ -30,6 +30,8 @@ def data_to_str(data):
     for i in range(0, 784, 28):
         row_str = ""
         for num in data[i: i + 28]:
+            if not num:
+                num = ""
             row_str += '{:<3} '.format(str(num)[:3])
         entire_str += '{}\n'.format(row_str)
     return entire_str
