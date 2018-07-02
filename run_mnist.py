@@ -2,6 +2,7 @@ from optparse import OptionParser
 
 from neuralize.core.neural_net import NeuralNet
 from neuralize.core.sigmoid import SigmoidActivation
+from neuralize.core.tanh import TanHActivation
 from neuralize.data.mnist_data import setup_data
 
 parser = OptionParser()
@@ -27,7 +28,7 @@ def run_mnist_nn(save_file=None, load_file=None, more_iters=0):
     else:
         neural_net = NeuralNet(3, [inputs, 16, outputs],
                                [SigmoidActivation(), SigmoidActivation()],
-                               teaching_iterations=500,
+                               teaching_iterations=100,
                                learning_rate=0.0001)
         neural_net.train(learn_set, learn_expected,
                          display_progress=True)    

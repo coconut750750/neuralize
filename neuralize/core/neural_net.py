@@ -18,7 +18,7 @@ class NeuralNet(object):
         self.activations = activations
         self.teaching_iterations = teaching_iterations
         self.learning_rate = learning_rate
-
+        np.random.seed(37)
         self.synapses = [np.random.random((self.layer_sizes[i], self.layer_sizes[i + 1])) * 2 - 1\
                          for i in range(self.num_layers - 1)]
         self.biases = [np.random.random((1, self.layer_sizes[i + 1])) * 2 - 1\
@@ -37,13 +37,18 @@ class NeuralNet(object):
         last_layer_error = expected_output - layer_activations[self.num_layers - 1]
 
         l = self.num_layers - 1
-        prev_delta = last_layer_error * self.activations[l - 1].gradient(layer_activations[l])
-        self.synapses[l - 1] += layer_activations[l - 1].T.dot(prev_delta) * self.learning_rate
+        prev_delta = self._adjust(l, last_layer_error, layer_activations)
 
         for l in range(self.num_layers - 2, 0, -1):
             layer_error = prev_delta.dot(self.synapses[l].T)
-            prev_delta = layer_error * self.activations[l - 1].gradient(layer_activations[l])
-            self.synapses[l - 1] += layer_activations[l - 1].T.dot(prev_delta) * self.learning_rate
+            prev_delta = self._adjust(l, layer_error, layer_activations)
+
+    def _adjust(self, layer_num, layer_error, layer_activations):
+        prev_delta = layer_error * self.activations[layer_num - 1].gradient(layer_activations[layer_num])
+        self.synapses[layer_num - 1] += layer_activations[layer_num - 1].T.dot(prev_delta) * self.learning_rate
+        bias_delta = np.sum(prev_delta, axis=0)
+        self.biases[layer_num - 1] += bias_delta * self.learning_rate
+        return prev_delta
 
     def train(self, input, expected_output, display_progress=False):
         for i in range(self.teaching_iterations):
