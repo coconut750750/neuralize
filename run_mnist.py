@@ -1,29 +1,44 @@
+from optparse import OptionParser
+
 from neuralize.core.neural_net import NeuralNet
-from neuralize.data.mnist_data import setup_data, data_to_str
+from neuralize.core.sigmoid import SigmoidActivation
+from neuralize.data.mnist_data import setup_data
 
-def run_mnist_nn():
+parser = OptionParser()
+parser.add_option('-s', '--save', dest='save_file',
+                  help='save new neural network to FILE', metavar='FILE')
+parser.add_option('-l', '--load', dest='load_file',
+                  help='load neural network from FILE', metavar='FILE')
+parser.add_option('-t', '--teach', type='int', dest='more_iters', 
+                  help='teach a loaded neural network more', metavar='INT')
+
+def run_mnist_nn(save_file=None, load_file=None, more_iters=0):
     learn_set, learn_expected, test_set, test_expected = setup_data()
-
     inputs, outputs = len(learn_set[0]), len(learn_expected[0])
 
-    neural_net = NeuralNet(3, [inputs, 16, outputs],
-                           teaching_iterations=1000,
-                           learning_rate=0.0001)
-
-    neural_net.train(learn_set, learn_expected,
-                     display_progress=True)
+    if load_file:
+        neural_net = NeuralNet.load(load_file)
+        if more_iters:
+            orig_iters = neural_net.teaching_iterations
+            neural_net.teaching_iterations = more_iters
+            neural_net.train(learn_set, learn_expected,
+                             display_progress=True)
+            neural_net.teaching_iterations = orig_iters + more_iters
+    else:
+        neural_net = NeuralNet(3, [inputs, 16, outputs],
+                               [SigmoidActivation(), SigmoidActivation()],
+                               teaching_iterations=500,
+                               learning_rate=0.0001)
+        neural_net.train(learn_set, learn_expected,
+                         display_progress=True)    
 
     loss = neural_net.calculate_loss(learn_set, learn_expected)
     performance = neural_net.calculate_performance(test_set, test_expected)
     print('Loss: {}\tTest performance: {}'.format(loss, performance))
 
-    sample_index = 39
-    single_test = test_set[sample_index]
-    print(neural_net.predict(single_test))
-    print(test_expected[sample_index])
-
-    with open('sample_expected.txt', 'w') as f:
-        f.write(data_to_str(single_test))
+    if save_file:
+        neural_net.save(save_file)
 
 if __name__ == '__main__':
-    run_mnist_nn()
+    options = parser.parse_args()[0]
+    run_mnist_nn(options.save_file, options.load_file, options.more_iters)

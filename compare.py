@@ -1,15 +1,14 @@
+from neuralize.core.neural_net import NeuralNet
+from neuralize.core.sigmoid import SigmoidActivation
 from neuralize.data.fruit_data import setup_data
 from neuralize.vis.visualize import plot_2lines
-from neuralize.core.neural_net import NeuralNet
-
-from main import calc_performance_of_nn
 
 def collect_neural_net_data(num_layers, layer_sizes, teaching_iterations, learning_rate):
     global learn_set, learn_expected, test_set, test_expected
-    neural_net = NeuralNet(num_layers, layer_sizes, teaching_iterations, learning_rate)
+    neural_net = NeuralNet(num_layers, layer_sizes, [SigmoidActivation()] * num_layers, teaching_iterations, learning_rate)
     neural_net.train(learn_set, learn_expected)
     loss = neural_net.calculate_loss(learn_set, learn_expected)
-    performance = calc_performance_of_nn(neural_net, test_set, test_expected)
+    performance = neural_net.calculate_performance(test_set, test_expected)
     print(num_layers, layer_sizes, teaching_iterations, learning_rate, loss, performance, sep="\t")
     return loss, performance
 
