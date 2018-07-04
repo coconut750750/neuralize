@@ -4,7 +4,7 @@ from neuralize.core.activation import Activation
 
 class SigmoidActivation(Activation):
     def __init__(self):
-        pass
+        self.name = 'Sigmoid'
 
     def compute(self, x):
         exp = np.exp(x)

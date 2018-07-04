@@ -21,3 +21,5 @@ add the `-s` flag to save the new network.
 ```bash
 python3 compare.py
 ```
+
+## Activation Functions ##

@@ -1,24 +1,28 @@
 import numpy as np
 import pickle
+from neuralize.core.sigmoid import SigmoidActivation
+from neuralize.core.tanh import TanHActivation
 
 class NeuralNet(object):
     def __init__(self, num_layers, layer_sizes, activations,
                  teaching_iterations=10000,
-                 learning_rate=0.1):
+                 tau=50000, kappa=1.0, num_batches=10):
         '''
         Creates a Neural Net object
         num_layers -- number of neuron layers including the input and output layer
         layer_sizes -- number of neurons in each layer
         activations -- the activation function for each layer excluding input
         teaching_iterations -- number of times to teach neural net
-        learning_rate -- how fast neural net should learn
+        tau, kappa -- used to determine how fast neural net should learn
+        num_batches -- number of batches to split train data into every learn iteration
         '''
         self.num_layers = num_layers
         self.layer_sizes = layer_sizes
         self.activations = activations
         self.teaching_iterations = teaching_iterations
-        self.learning_rate = learning_rate
-        np.random.seed(37)
+        self.tau = tau
+        self.kappa = kappa
+        self.num_batches = num_batches
         self.synapses = [np.random.random((self.layer_sizes[i], self.layer_sizes[i + 1])) * 2 - 1\
                          for i in range(self.num_layers - 1)]
         self.biases = [np.random.random((1, self.layer_sizes[i + 1])) * 2 - 1\
@@ -50,10 +54,13 @@ class NeuralNet(object):
         self.biases[layer_num - 1] += bias_delta * self.learning_rate
         return prev_delta
 
-    def train(self, input, expected_output, display_progress=False):
+    def train(self, training_input, expected_output, display_progress=False):
+        batch_size = len(training_input) // self.num_batches + 1
         for i in range(self.teaching_iterations):
-            layer_activations = self._forward(input)
-            self._backward(expected_output, layer_activations)
+            self.learning_rate = np.power((self.tau + i), -self.kappa)
+            for j in range(0, len(training_input), batch_size):
+                layer_activations = self._forward(training_input[j: j + batch_size])
+                self._backward(expected_output[j: j + batch_size], layer_activations)
             if display_progress:
                 print("Learning Iteration: {}".format(i))
 
@@ -79,4 +86,17 @@ class NeuralNet(object):
     @staticmethod
     def load(filename):
         with open(filename, 'rb') as f:
-            return pickle.load(f)
+            nn = pickle.load(f)
+            nn.tau = 50000
+            nn.kappa = 1.0
+            nn.num_batches = 10
+            return nn
+
+    def __str__(self):
+        description = 'Neural Network:\n'
+        description += 'Layers: {}\n'.format(self.num_layers)
+        description += 'Layer sizes: {}\n'.format(self.layer_sizes)
+        description += 'Layer Activations: {}\n'.format(self.activations)
+        description += 'Iterations: {}\n'.format(self.teaching_iterations)
+        description += 'Initial learn rate: {}'.format(np.power(self.tau, -self.kappa))
+        return description

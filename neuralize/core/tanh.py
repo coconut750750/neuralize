@@ -4,7 +4,7 @@ from neuralize.core.activation import Activation
 
 class TanHActivation(Activation):
     def __init__(self):
-        pass
+        self.name = 'TanH'
 
     def compute(self, x):
         return np.tanh(x)

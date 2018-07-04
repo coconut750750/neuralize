@@ -3,11 +3,16 @@ import numpy as np
 from neuralize.core.activation import Activation
 
 class ReluActivation(Activation):
-    def __init__(self):
-        pass
+    def __init__(self, alpha=0):
+        self.alpha = alpha
+        self.name = 'ReLU'
 
     def compute(self, x):
-        return np.maximum(x, 0)
+        return np.maximum(x, x * self.alpha)
 
     def gradient(self, x):
-        return x > 0
+        grad = x > 0
+        grad = grad.astype(float)
+        grad *= (1 - self.alpha)
+        grad += self.alpha
+        return grad

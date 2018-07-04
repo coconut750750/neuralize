@@ -26,17 +26,17 @@ def run_mnist_nn(save_file=None, load_file=None, more_iters=0):
                              display_progress=True)
             neural_net.teaching_iterations = orig_iters + more_iters
     else:
-        neural_net = NeuralNet(3, [inputs, 16, outputs],
-                               [SigmoidActivation(), SigmoidActivation()],
-                               teaching_iterations=100,
-                               learning_rate=0.0001)
+        neural_net = NeuralNet(4, [inputs, 40, 30, outputs],
+                               [SigmoidActivation(), SigmoidActivation(), SigmoidActivation()],
+                               teaching_iterations=1000,
+                               tau=50000, kappa=1.0, num_batches=10)
         neural_net.train(learn_set, learn_expected,
                          display_progress=True)    
 
     loss = neural_net.calculate_loss(learn_set, learn_expected)
     performance = neural_net.calculate_performance(test_set, test_expected)
     print('Loss: {}\tTest performance: {}'.format(loss, performance))
-
+    print(neural_net)
     if save_file:
         neural_net.save(save_file)
 
