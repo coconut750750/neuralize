@@ -12,8 +12,8 @@ def after_iteration(nn, iter, activations):
 def get_ui_neural_net(inputs, outputs):
     neural_net = UINeuralNet(3, [inputs, 7, outputs],
                              [SigmoidActivation(), SigmoidActivation()],
-                             teaching_iterations=1000,
-                             tau=100, kappa=0.5)
+                             teaching_iterations=5000,
+                             tau=500, kappa=0.5)
     
     return neural_net
 

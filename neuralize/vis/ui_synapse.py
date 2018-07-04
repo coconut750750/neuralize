@@ -21,4 +21,4 @@ class Synapse:
         self.set_width(new_weight)
 
     def set_width(self, weight):
-        self.width = abs(weight)
+        self.width = abs(weight) / 2
