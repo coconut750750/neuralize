@@ -6,7 +6,7 @@ from neuralize.core.tanh import TanHActivation
 class NeuralNet(object):
     def __init__(self, num_layers, layer_sizes, activations,
                  teaching_iterations=10000,
-                 tau=50000, kappa=1.0, num_batches=10):
+                 tau=50000, kappa=0.5, gamma=-1, num_batches=1):
         '''
         Creates a Neural Net object
         num_layers -- number of neuron layers including the input and output layer
@@ -54,15 +54,15 @@ class NeuralNet(object):
         self.biases[layer_num - 1] += bias_delta * self.learning_rate
         return prev_delta
 
-    def train(self, training_input, expected_output, display_progress=False):
+    def train(self, training_input, expected_output, after_iter=None):
         batch_size = len(training_input) // self.num_batches + 1
         for i in range(self.teaching_iterations):
             self.learning_rate = np.power((self.tau + i), -self.kappa)
             for j in range(0, len(training_input), batch_size):
                 layer_activations = self._forward(training_input[j: j + batch_size])
                 self._backward(expected_output[j: j + batch_size], layer_activations)
-            if display_progress:
-                print("Learning Iteration: {}".format(i))
+            if after_iter:
+                after_iter(self, i)
 
     def predict(self, input):
         return self._forward(input)[-1]

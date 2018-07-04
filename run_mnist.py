@@ -13,6 +13,9 @@ parser.add_option('-l', '--load', dest='load_file',
 parser.add_option('-t', '--teach', type='int', dest='more_iters', 
                   help='teach a loaded neural network more', metavar='INT')
 
+def after_iteration(nn, iter):
+    print("Learning Iteration: {}".format(iter))
+
 def run_mnist_nn(save_file=None, load_file=None, more_iters=0):
     learn_set, learn_expected, test_set, test_expected = setup_data()
     inputs, outputs = len(learn_set[0]), len(learn_expected[0])
@@ -22,8 +25,7 @@ def run_mnist_nn(save_file=None, load_file=None, more_iters=0):
         if more_iters:
             orig_iters = neural_net.teaching_iterations
             neural_net.teaching_iterations = more_iters
-            neural_net.train(learn_set, learn_expected,
-                             display_progress=True)
+            neural_net.train(learn_set, learn_expected, after_iteration)
             neural_net.teaching_iterations = orig_iters + more_iters
     else:
         neural_net = NeuralNet(4, [inputs, 40, 30, outputs],

@@ -1,15 +1,15 @@
 from neuralize.core.neural_net import NeuralNet
 from neuralize.core.sigmoid import SigmoidActivation
 from neuralize.data.fruit_data import setup_data
-from neuralize.vis.visualize import plot_2lines
+from neuralize.vis.graph import plot_2lines
 
-def collect_neural_net_data(num_layers, layer_sizes, teaching_iterations, learning_rate):
+def collect_neural_net_data(num_layers, layer_sizes, teaching_iterations, tau):
     global learn_set, learn_expected, test_set, test_expected
-    neural_net = NeuralNet(num_layers, layer_sizes, [SigmoidActivation()] * num_layers, teaching_iterations, learning_rate)
+    neural_net = NeuralNet(num_layers, layer_sizes, [SigmoidActivation()] * num_layers, teaching_iterations, tau)
     neural_net.train(learn_set, learn_expected)
     loss = neural_net.calculate_loss(learn_set, learn_expected)
     performance = neural_net.calculate_performance(test_set, test_expected)
-    print(num_layers, layer_sizes, teaching_iterations, learning_rate, loss, performance, sep="\t")
+    print(num_layers, layer_sizes, teaching_iterations, tau, loss, performance, sep="\t")
     return loss, performance
 
 def run_trials(list_of_args, trials=5):
@@ -51,16 +51,16 @@ def compare_learning_iterations(num_inputs, num_outputs, trials=5):
     losses, performances = run_trials(args, trials=trials)
     plot_2lines(learning_iterations, losses, performances, x_label='learning iterations')
 
-def compare_learning_rate(num_inputs, num_outputs, trials=5):
+def compare_tau(num_inputs, num_outputs, trials=5):
     avg_nodes = (num_inputs + num_outputs) // 2
-    learning_rate = [0.01, 0.05, 0.1, 0.15, 0.2, 0.25, 0.5, 0.75]
+    tau = [5, 10, 20, 50, 100, 150]
     args = []
-    for rate in learning_rate:
+    for rate in tau:
         args.append((3, [num_inputs, avg_nodes, num_outputs], 10000, rate))
     losses, performances = run_trials(args, trials=trials)
-    plot_2lines(learning_rate, losses, performances, x_label='learning rate')
+    plot_2lines(tau, losses, performances, x_label='learning rate')
 
 if __name__ == '__main__':
     learn_set, learn_expected, test_set, test_expected = setup_data(0.75)
-    print('layers', 'layer sizes', 'iters', 'rate', 'loss\t', 'performance', sep="\t")
-    compare_num_layers(len(learn_set[0]), len(learn_expected[0]), 5)
+    print('layers', 'layer sizes', 'iters', 'tau ', 'loss\t', 'performance', sep="\t")
+    compare_layer_sizes(len(learn_set[0]), len(learn_expected[0]), 5)
