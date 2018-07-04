@@ -6,22 +6,19 @@ class Synapse:
         self.from_neuron = from_neuron
         self.to_neuron = to_neuron
         self.weight = weight
-        self.base_color = color
-        self.set_color(weight)
+        self.color = color
+        self.width = weight
+        self.set_width(weight)
 
     def draw(self, painter):
         pen = QPen(self.color)
-        pen.setWidth(3);
+        pen.setWidth(self.width);
         painter.setPen(pen);
         painter.drawLine(*self.from_neuron.pos, *self.to_neuron.pos)
 
     def update_weight(self, new_weight):
         self.weight = new_weight
-        self.color = self.color
+        self.set_width(new_weight)
 
-    def set_color(self, weight):
-        half_rgb = [i / 2 for i in self.base_color.getRgb()[:3]]
-        weighted_half_rgb = [i * weight for i in half_rgb]
-        weighted_rgb = [value + half_rgb[i] for i, value in enumerate(weighted_half_rgb)]
-        print(weight, weighted_rgb)
-        self.self.base_color = QColor(*weighted_rgb, 255)
+    def set_width(self, weight):
+        self.width = abs(weight)

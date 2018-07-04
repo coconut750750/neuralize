@@ -10,13 +10,14 @@ class Neuron:
         self.brush_color = QColor(*color.getRgb()[:3], 127)
 
     def draw(self, painter):
+        pen = QPen(self.color)
+        pen.setWidth(3)
+        painter.setPen(pen)
+
         ellipse_config = (self.pos[0] - self.size[0] / 2, self.pos[1] - self.size[1] / 2, *self.size)
         painter.setBrush(QBrush(QColor(255, 255, 255), Qt.SolidPattern));
         painter.drawEllipse(*ellipse_config)
         
-        pen = QPen(self.color)
-        pen.setWidth(3)
-        painter.setPen(pen)
         brush = QBrush(self.brush_color, Qt.SolidPattern)
         painter.setBrush(brush);
         painter.drawEllipse(*ellipse_config)

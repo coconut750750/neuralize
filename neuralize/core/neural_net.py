@@ -1,7 +1,5 @@
 import numpy as np
 import pickle
-from neuralize.core.sigmoid import SigmoidActivation
-from neuralize.core.tanh import TanHActivation
 
 class NeuralNet(object):
     def __init__(self, num_layers, layer_sizes, activations,

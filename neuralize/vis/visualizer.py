@@ -8,25 +8,29 @@ from neuralize.vis.ui_neuron import Neuron
 from neuralize.vis.ui_synapse import Synapse
 
 class NeuralizeMainWindow(QMainWindow):
-    def __init__(self, neural_net):
+    def __init__(self, ui_neural_net, training_input, expected_output):
         super().__init__()
-        self.neural_net = neural_net
+        self.neural_net = ui_neural_net
+        self.training_input = training_input
+        self.expected_output = expected_output
         self.init_ui()
         self.init_ui_net()
 
-    def _train_net(self):
-        print('Hello World')
+    def _train_one_iteration(self):
+        self.neural_net.train_one_iteration(self.training_input, self.expected_output)
+        self.update_synapses()
+        self.repaint()
 
     def init_ui(self):      
-        self.setGeometry(0, 0, 500, 500)
+        self.setGeometry(0, 0, 1000, 1000)
         self.setWindowTitle('Neuralize')
 
-        self.button = QPushButton('Test', self)
-        self.button.clicked.connect(self._train_net)
+        self.button = QPushButton('Train', self)
+        self.button.clicked.connect(self._train_one_iteration)
         self.button.resize(100,32)
         self.button.move(50, 50)
 
-        self.showMaximized()
+        self.show()
 
     def init_ui_net(self):
         self.neurons = []
@@ -46,8 +50,8 @@ class NeuralizeMainWindow(QMainWindow):
         pen = QPen(QColor(255, 0, 0))
         brush = QBrush(QColor(255, 0, 0), Qt.SolidPattern)
         painter.setPen(pen)
-        painter.setBrush(brush);
-        
+        painter.setBrush(brush)
+
         self.draw_synapses(painter)
         self.draw_neurons(painter)
 
@@ -62,25 +66,29 @@ class NeuralizeMainWindow(QMainWindow):
                 n = Neuron((ui_layer_width * (layer + 0.5), ui_layer_height * (i + 0.5)), (50, 50), 100)
                 layer_neurons.append(n)
             self.neurons.append(layer_neurons)
-        
+    
+    def create_synapses(self):
+        for layer, synapse_layer in enumerate(self.neural_net.synapses):
+            self.synapses.append([])
+            for i, from_node_synapses in enumerate(synapse_layer):
+                max_weight = max(max(from_node_synapses), -min(from_node_synapses))
+                ui_synapse_list = [Synapse(self.neurons[layer][i], self.neurons[layer + 1][j], weight/max_weight) for j, weight in enumerate(from_node_synapses)]
+                self.synapses[layer].append(ui_synapse_list)
+
+    def update_synapses(self):
+        for layer, synapse_layer in enumerate(self.neural_net.synapses):
+            for from_index, from_node_synapses in enumerate(synapse_layer):
+                for dest_index, synapse in enumerate(from_node_synapses):
+                    self.synapses[layer][from_index][dest_index].update_weight(synapse)
+
+
     def draw_neurons(self, painter):
         for layer in self.neurons:
             for neuron in layer:
                 neuron.draw(painter)
 
-    def create_synapses(self,):
-        for layer in range(self.neural_net.num_layers - 1):
-            synapse_layer = self.neural_net.synapses[layer]
-            self.synapses.append([])
-            for i, from_node_synapses in enumerate(synapse_layer):
-                max_weight = max(from_node_synapses)
-                min_weight = min(from_node_synapses)
-                max_weight = max(max_weight, -min_weight)
-                ui_synapse_list = [Synapse(self.neurons[layer][i], self.neurons[layer + 1][j], weight/max_weight) for j, weight in enumerate(from_node_synapses)]
-                self.synapses[layer].append(ui_synapse_list)
-
     def draw_synapses(self, painter):
         for layer in self.synapses:
-            for i, ui_synapse_list in enumerate(layer):
+            for ui_synapse_list in layer:
                 for ui_synapse in ui_synapse_list:
                     ui_synapse.draw(painter)
