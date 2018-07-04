@@ -17,8 +17,9 @@ class NeuralizeMainWindow(QMainWindow):
         self.init_ui_net()
 
     def _train_one_iteration(self):
-        self.neural_net.train_one_iteration(self.training_input, self.expected_output)
+        activations = self.neural_net.train_one_iteration(self.training_input, self.expected_output)
         self.update_synapses()
+        self.update_neurons(activations)
         self.repaint()
 
     def init_ui(self):      
@@ -63,7 +64,7 @@ class NeuralizeMainWindow(QMainWindow):
             ui_layer_height = y = size.height() // (layer_size)
             layer_neurons = []
             for i in range(layer_size):
-                n = Neuron((ui_layer_width * (layer + 0.5), ui_layer_height * (i + 0.5)), (50, 50), 100)
+                n = Neuron((ui_layer_width * (layer + 0.5), ui_layer_height * (i + 0.5)), (50, 50), 0.5)
                 layer_neurons.append(n)
             self.neurons.append(layer_neurons)
     
@@ -81,6 +82,12 @@ class NeuralizeMainWindow(QMainWindow):
                 for dest_index, synapse in enumerate(from_node_synapses):
                     self.synapses[layer][from_index][dest_index].update_weight(synapse)
 
+    def update_neurons(self, activations):
+        for i, layer in enumerate(activations):
+            max_activation = max(max(layer), -min(layer))
+            for j, activation in enumerate(layer):
+                print(activation, max_activation)
+                self.neurons[i][j].update_brush_color(activation / max_activation)
 
     def draw_neurons(self, painter):
         for layer in self.neurons:

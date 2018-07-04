@@ -19,4 +19,7 @@ class UINeuralNet(NeuralNet):
         layer_activations = self._forward(training_input)
         self._backward(expected_output, layer_activations)
 
-        return layer_activations
+        mean_activations = []
+        for activations in layer_activations:
+            mean_activations.append(np.mean(activations, axis=0))
+        return mean_activations
