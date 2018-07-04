@@ -2,12 +2,12 @@ from PyQt5.QtGui import QPen, QBrush, QColor
 from PyQt5.QtCore import Qt
 
 class Neuron:
-    def __init__(self, pos, size, activation, color=QColor(255, 0, 0)):
+    def __init__(self, pos, size, bias, color=QColor(255, 0, 0)):
         self.pos = pos
         self.size = size
         self.base_color = color
         self.pen_color = color
-        self.update_brush_color(activation)
+        self.update_brush_color(bias)
 
     def draw(self, painter):
         pen = QPen(self.pen_color)
@@ -22,7 +22,8 @@ class Neuron:
         painter.setBrush(brush);
         painter.drawEllipse(*ellipse_config)
 
-    def update_brush_color(self, new_activation):
-        self.activation = new_activation
-        new_alpha = (new_activation * (255 / 2)) + (255 / 4)
+    def update_brush_color(self, new_bias):
+        self.bias = new_bias
+        new_alpha = new_bias / 2 + 0.5
+        new_alpha = (new_alpha * (255 / 2)) + (255 / 4)
         self.brush_color = QColor(*self.base_color.getRgb()[:3], new_alpha)

@@ -18,12 +18,12 @@ class NeuralizeMainWindow(QMainWindow):
 
     def _train_iterations(self):
         for i in range(20):
-            activations = self.neural_net.train_one_iteration(self.training_input, self.expected_output)
-        if not activations:
+            ongoing = self.neural_net.train_one_iteration(self.training_input, self.expected_output)
+        if not ongoing:
             self.timer.disconnect()
             return
         self.update_synapses()
-        self.update_neurons(activations)
+        self.update_neurons()
         self.repaint()
 
     def _start_training(self):
@@ -74,7 +74,7 @@ class NeuralizeMainWindow(QMainWindow):
             ui_layer_height = y = size.height() // (layer_size)
             layer_neurons = []
             for i in range(layer_size):
-                n = Neuron((ui_layer_width * (layer + 0.5), ui_layer_height * (i + 0.5)), (50, 50), 0.5)
+                n = Neuron((ui_layer_width * (layer + 0.5), ui_layer_height * (i + 0.5)), (50, 50), 0)
                 layer_neurons.append(n)
             self.neurons.append(layer_neurons)
     
@@ -92,11 +92,11 @@ class NeuralizeMainWindow(QMainWindow):
                 for dest_index, synapse in enumerate(from_node_synapses):
                     self.synapses[layer][from_index][dest_index].update_weight(synapse)
 
-    def update_neurons(self, activations):
-        for i, layer in enumerate(activations):
-            max_activation = max(max(layer), -min(layer))
-            for j, activation in enumerate(layer):
-                self.neurons[i][j].update_brush_color(activation / max_activation)
+    def update_neurons(self):
+        for i, layer in enumerate(self.neural_net.biases):
+            max_bias = max(max(layer[0]), -min(layer[0]))
+            for j, bias in enumerate(layer[0]):
+                self.neurons[i + 1][j].update_brush_color(bias / max_bias)
 
     def draw_neurons(self, painter):
         for layer in self.neurons:

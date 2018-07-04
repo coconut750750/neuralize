@@ -10,7 +10,7 @@ class UINeuralNet(NeuralNet):
 
     def train_one_iteration(self, training_input, expected_output):
         if not self.iters_left:
-            return
+            return False
 
         self.iters_left -= 1
         iteration = self.teaching_iterations - self.iters_left
@@ -19,7 +19,4 @@ class UINeuralNet(NeuralNet):
         layer_activations = self._forward(training_input)
         self._backward(expected_output, layer_activations)
 
-        mean_activations = []
-        for activations in layer_activations:
-            mean_activations.append(np.mean(activations, axis=0))
-        return mean_activations
+        return True
