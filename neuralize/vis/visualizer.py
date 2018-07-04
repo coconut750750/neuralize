@@ -27,6 +27,7 @@ class NeuralizeMainWindow(QMainWindow):
         self.repaint()
 
     def _start_training(self):
+        self.button.setEnabled(False)
         self.timer = QTimer(self)
         self.timer.start(100)
         self.timer.timeout.connect(self._train_iterations)
