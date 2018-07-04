@@ -16,26 +16,27 @@ class NeuralizeMainWindow(QMainWindow):
         self.init_ui()
         self.init_ui_net()
 
-    def _train_one_iteration(self):
-        print('hi')
-        activations = self.neural_net.train_one_iteration(self.training_input, self.expected_output)
+    def _train_iterations(self):
+        for i in range(10):
+            activations = self.neural_net.train_one_iteration(self.training_input, self.expected_output)
         self.update_synapses()
         self.update_neurons(activations)
         self.repaint()
+
+    def _start_training(self):
+        self.timer = QTimer(self)
+        self.timer.start(500)
+        self.timer.timeout.connect(self._train_iterations)
 
     def init_ui(self):      
         self.setGeometry(0, 0, 1000, 1000)
         self.setWindowTitle('Neuralize')
 
-        self.button = QPushButton('Train', self)
-        self.button.clicked.connect(self._train_one_iteration)
-        self.button.resize(100,32)
-        self.button.move(50, 50)
-
-        timer = QTimer()
-        timer.start(100)
-        timer.timeout.connect(self._train_one_iteration)
-
+        self.button = QPushButton('Start training', self)
+        self.button.clicked.connect(self._start_training)
+        self.button.resize(128, 32)
+        self.button.move(25, 25)
+        
         self.show()
 
     def init_ui_net(self):

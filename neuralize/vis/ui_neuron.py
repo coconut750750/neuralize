@@ -5,11 +5,12 @@ class Neuron:
     def __init__(self, pos, size, activation, color=QColor(255, 0, 0)):
         self.pos = pos
         self.size = size
-        self.color = color
+        self.base_color = color
+        self.pen_color = color
         self.update_brush_color(activation)
 
     def draw(self, painter):
-        pen = QPen(self.color)
+        pen = QPen(self.pen_color)
         pen.setWidth(3)
         painter.setPen(pen)
 
@@ -23,5 +24,5 @@ class Neuron:
 
     def update_brush_color(self, new_activation):
         self.activation = new_activation
-        new_alpha = (new_activation * 255)
-        self.brush_color = QColor(*self.color.getRgb()[:3], new_alpha)
+        new_alpha = (new_activation * (255 / 2)) + (255 / 4)
+        self.brush_color = QColor(*self.base_color.getRgb()[:3], new_alpha)
