@@ -2,7 +2,7 @@ import sys, random
 
 from PyQt5.QtWidgets import QPushButton, QMainWindow
 from PyQt5.QtGui import QPainter, QBrush, QColor, QPen
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 
 from neuralize.vis.ui_neuron import Neuron
 from neuralize.vis.ui_synapse import Synapse
@@ -17,6 +17,7 @@ class NeuralizeMainWindow(QMainWindow):
         self.init_ui_net()
 
     def _train_one_iteration(self):
+        print('hi')
         activations = self.neural_net.train_one_iteration(self.training_input, self.expected_output)
         self.update_synapses()
         self.update_neurons(activations)
@@ -30,6 +31,10 @@ class NeuralizeMainWindow(QMainWindow):
         self.button.clicked.connect(self._train_one_iteration)
         self.button.resize(100,32)
         self.button.move(50, 50)
+
+        timer = QTimer()
+        timer.start(100)
+        timer.timeout.connect(self._train_one_iteration)
 
         self.show()
 
@@ -86,7 +91,6 @@ class NeuralizeMainWindow(QMainWindow):
         for i, layer in enumerate(activations):
             max_activation = max(max(layer), -min(layer))
             for j, activation in enumerate(layer):
-                print(activation, max_activation)
                 self.neurons[i][j].update_brush_color(activation / max_activation)
 
     def draw_neurons(self, painter):
