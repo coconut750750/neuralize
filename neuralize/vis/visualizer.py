@@ -17,15 +17,18 @@ class NeuralizeMainWindow(QMainWindow):
         self.init_ui_net()
 
     def _train_iterations(self):
-        for i in range(10):
+        for i in range(20):
             activations = self.neural_net.train_one_iteration(self.training_input, self.expected_output)
+        if not activations:
+            self.timer.disconnect()
+            return
         self.update_synapses()
         self.update_neurons(activations)
         self.repaint()
 
     def _start_training(self):
         self.timer = QTimer(self)
-        self.timer.start(500)
+        self.timer.start(100)
         self.timer.timeout.connect(self._train_iterations)
 
     def init_ui(self):      
