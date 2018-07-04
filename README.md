@@ -9,7 +9,11 @@ The visualizer uses a custom Neural Net class. This class implements a simple fe
 Using the Neural Net class, the visualizer can access weights and biases of the network. It creates synapses with a width that is proportional the the weight of the synapse and nodes with a transparency that is proportional to the bias of the neuron. 
 
 ## Usage ##
-`python3 run_iris.py` runs the GUI with a neural net trained with the iris dataset. Click "Start Training" to start the visualization.
+`python3 run_iris.py` runs the GUI with a neural net trained with the Iris dataset. Click "Start Training" to start the visualization.
+
+Training a 4 Layer Neural Network with 7 hidden neurons with the Iris dataset.
+<img src="example.png" width="556px" height="422px" align="center"/>
+
 
 ## Training MNIST Data ##
 To train a Neural Net object with the famous MNIST dataset, run
