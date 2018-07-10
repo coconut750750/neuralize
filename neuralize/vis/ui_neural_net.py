@@ -13,10 +13,12 @@ class UINeuralNet(NeuralNet):
             return False
 
         self.iters_left -= 1
-        iteration = self.teaching_iterations - self.iters_left
-        self.learning_rate = np.power((self.tau + iteration), -self.kappa)
+        self.learning_rate = np.power((self.tau + self.get_current_iteration()), -self.kappa)
 
         layer_activations = self._forward(training_input)
         self._backward(expected_output, layer_activations)
 
         return True
+
+    def get_current_iteration(self):
+        return self.teaching_iterations - self.iters_left

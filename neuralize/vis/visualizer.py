@@ -1,6 +1,6 @@
 import sys, random
 
-from PyQt5.QtWidgets import QPushButton, QMainWindow
+from PyQt5.QtWidgets import QPushButton, QLabel, QMainWindow
 from PyQt5.QtGui import QPainter, QBrush, QColor, QPen
 from PyQt5.QtCore import Qt, QTimer
 
@@ -8,26 +8,27 @@ from neuralize.vis.ui_neuron import Neuron
 from neuralize.vis.ui_synapse import Synapse
 
 class NeuralizeMainWindow(QMainWindow):
-    def __init__(self, ui_neural_net, training_input, expected_output):
+    def __init__(self, ui_neural_net, training_input, expected_output, test_input, test_output):
         super().__init__()
         self.neural_net = ui_neural_net
         self.training_input = training_input
         self.expected_output = expected_output
+        self.test_input = test_input
+        self.test_output = test_output
         self.init_ui()
         self.init_ui_net()
 
     def _train_iterations(self):
-        for i in range(20):
+        for i in range(10):
             ongoing = self.neural_net.train_one_iteration(self.training_input, self.expected_output)
-        if not ongoing:
-            self.timer.disconnect()
-            return
         self.update_synapses()
         self.update_neurons()
         self.repaint()
+        if not ongoing:
+            self.timer.disconnect()
 
     def _start_training(self):
-        self.button.setEnabled(False)
+        self.training_button.setEnabled(False)
         self.timer = QTimer(self)
         self.timer.start(100)
         self.timer.timeout.connect(self._train_iterations)
@@ -36,10 +37,10 @@ class NeuralizeMainWindow(QMainWindow):
         self.setGeometry(0, 0, 1000, 1000)
         self.setWindowTitle('Neuralize')
 
-        self.button = QPushButton('Start training', self)
-        self.button.clicked.connect(self._start_training)
-        self.button.resize(128, 32)
-        self.button.move(25, 25)
+        self.training_button = QPushButton('Start training', self)
+        self.training_button.clicked.connect(self._start_training)
+        self.training_button.resize(128, 32)
+        self.training_button.move(25, 25)
         
         self.show()
 
@@ -54,14 +55,22 @@ class NeuralizeMainWindow(QMainWindow):
         painter.begin(self)
         painter.setRenderHint(QPainter.Antialiasing)
         painter.setRenderHint(QPainter.HighQualityAntialiasing)
+
+        self.draw_metadata(painter)
         self.draw_net(painter)
         painter.end()
 
+    def draw_metadata(self, painter):
+        self._set_paint_color(painter, QColor(255, 0, 0))
+        training_progress = self.neural_net.get_current_iteration() / self.neural_net.teaching_iterations
+        painter.drawRect(0, 0, (training_progress) * 1000, 10)
+
+        performance = self.neural_net.calculate_performance(self.test_input, self.test_output) / 100
+        self._set_paint_color(painter, QColor(0, 255, 0))
+        painter.drawRect(0, 10, (performance) * 1000, 10)
+
     def draw_net(self, painter):
-        pen = QPen(QColor(255, 0, 0))
-        brush = QBrush(QColor(255, 0, 0), Qt.SolidPattern)
-        painter.setPen(pen)
-        painter.setBrush(brush)
+        self._set_paint_color(painter, QColor(255, 0, 0))
 
         self.draw_synapses(painter)
         self.draw_neurons(painter)
@@ -108,3 +117,9 @@ class NeuralizeMainWindow(QMainWindow):
             for ui_synapse_list in layer:
                 for ui_synapse in ui_synapse_list:
                     ui_synapse.draw(painter)
+
+    def _set_paint_color(self, painter, qcolor):
+        pen = QPen(qcolor)
+        brush = QBrush(qcolor, Qt.SolidPattern)
+        painter.setPen(pen)
+        painter.setBrush(brush)
