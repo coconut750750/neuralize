@@ -10,8 +10,8 @@ def after_iteration(nn, iter, activations):
     print("Learning Iteration: {}".format(iter))
 
 def get_ui_neural_net(inputs, outputs):
-    neural_net = UINeuralNet(3, [inputs, 7, outputs],
-                             [SigmoidActivation(), SigmoidActivation()],
+    neural_net = UINeuralNet(4, [inputs, 5, 5, outputs],
+                             [SigmoidActivation(), SigmoidActivation(), SigmoidActivation()],
                              teaching_iterations=5000,
                              tau=500, kappa=0.5)
     
@@ -23,5 +23,5 @@ if __name__ == '__main__':
 
     app = QApplication(sys.argv)
     neural_net = get_ui_neural_net(inputs, outputs)
-    main_window = NeuralizeMainWindow(neural_net, learn_set, learn_expected)
+    main_window = NeuralizeMainWindow(neural_net, learn_set, learn_expected, test_set, test_expected)
     sys.exit(app.exec_())
